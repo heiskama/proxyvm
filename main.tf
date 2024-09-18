@@ -17,81 +17,78 @@ provider "azurerm" {
   resource_provider_registrations = "none"
 }
 
-// Resource group
-resource "azurerm_resource_group" "rg" {
-  name     = "${var.prefix}-rg"
-  location = "${var.location}"
+// Resource Group
+module "rg" {
+  source              = "./modules/rg"
+  location            = var.location
+  resource_group_name = "${var.prefix}-rg"
 }
 
-// Vnet
-resource "azurerm_virtual_network" "vnet" {
-  name                = "${var.prefix}-vnet"
-  address_space       = ["10.0.0.0/16"]
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+// Import existing Resource Group
+//module "rg" {
+//  source              = "./modules/imports/rg"
+//  resource_group_name = "${var.prefix}-rg"
+//}
+
+// Virtual Network
+module "vnet" {
+  source               = "./modules/vnet"
+  location             = var.location
+  resource_group_name  = module.rg.resource_group_name
+  virtual_network_name = "${var.prefix}-vnet"
+  address_space        = ["10.0.0.0/16"]
 }
+
+// Import existing Virtual Network
+//module "vnet" {
+//  source               = "./modules/imports/vnet"
+//  resource_group_name  = module.rg.resource_group_name
+//  virtual_network_name = "${var.prefix}-vnet"
+//}
 
 // Subnet
-resource "azurerm_subnet" "subnet" {
-  name                 = "subnet"
-  resource_group_name  = azurerm_resource_group.rg.name
-  virtual_network_name = azurerm_virtual_network.vnet.name
-  address_prefixes     = ["10.0.2.0/24"]
+module "subnet1" {
+  source               = "./modules/subnet"
+  resource_group_name  = module.rg.resource_group_name
+  virtual_network_name = module.vnet.virtual_network_name
+  subnet_name          = "subnet1"
+  address_prefixes     = ["10.0.1.0/24"]
 }
 
-// Network interface
-resource "azurerm_network_interface" "nic" {
-  name                = "${var.prefix}-nic"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
+// Import existing Subnet
+//module "subnet1" {
+//  source               = "./modules/imports/subnet"
+//  resource_group_name  = module.rg.resource_group_name
+//  virtual_network_name = module.vnet.virtual_network_name
+//  subnet_name          = "subnet1"
+//}
 
-  ip_configuration {
-    name                          = "configuration1"
-    subnet_id                     = azurerm_subnet.subnet.id
-    private_ip_address_allocation = "Dynamic"
-    public_ip_address_id          = azurerm_public_ip.pip.id
-  }
+// Network Security Group
+module "nsg" {
+  source                  = "./modules/nsg"
+  location                = var.location
+  resource_group_name     = module.rg.resource_group_name
+  nsg_name                = "${var.prefix}-nsg"
+  allow_all_inbound_from  = "*"
 }
 
-// Virtual machine
-resource "azurerm_virtual_machine" "vm" {
-  name                             = "${var.prefix}-vm"
-  location                         = azurerm_resource_group.rg.location
-  resource_group_name              = azurerm_resource_group.rg.name
-  vm_size                          = "${var.vm_size}"
-  network_interface_ids            = [azurerm_network_interface.nic.id]
-  delete_os_disk_on_termination    = true
-  delete_data_disks_on_termination = true
+// Import existing Network Security Group
+//module "nsg" {
+//  source                  = "./modules/imports/nsg"
+//  resource_group_name     = module.rg.resource_group_name
+//  nsg_name                = "${var.prefix}-nsg"
+//}
 
-  storage_image_reference {
-    publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-focal"
-    sku       = "20_04-lts"
-    version   = "latest"
-  }
-
-  storage_os_disk {
-    name              = "${var.prefix}-osdisk"
-    caching           = "ReadWrite"
-    create_option     = "FromImage"
-    managed_disk_type = "Standard_LRS"
-  }
-
-  os_profile {
-    computer_name  = "${var.prefix}"
-    admin_username = var.username
-    admin_password = var.password
-  }
-
-  os_profile_linux_config {
-    disable_password_authentication = false
-  }
-}
-
-// Public IP
-resource "azurerm_public_ip" "pip" {
-  name                = "${var.prefix}-pip"
-  location            = azurerm_resource_group.rg.location
-  resource_group_name = azurerm_resource_group.rg.name
-  allocation_method   = "Static"
+// Virtual Machine
+module "vm" {
+  source                    = "./modules/vm"
+  location                  = var.location
+  resource_group_name       = module.rg.resource_group_name
+  vm_name                   = "${var.prefix}"
+  vm_size                   = var.vm_size
+  subnet_id                 = module.subnet1.subnet_id
+  username                  = var.username
+  password                  = var.password
+  attach_nsg                = true
+  network_security_group_id = module.nsg.nsg_id
 }

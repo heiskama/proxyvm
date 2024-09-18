@@ -1,21 +1,22 @@
-// Get tenant_id (tenantId) with: `az account show` or `az account list`
 variable "tenant_id" {
-#  default = ""
+  type = string
+  default = ""
+  description = "Get tenant_id (tenantId) with: `az account show` or `az account list`"
 }
 
-// Get subscription_id (id) with: `az account show` or `az account list`
 variable "subscription_id" {
-#  default = ""
+  default = ""
+  description = "Get subscription_id (id) with: `az account show` or `az account list`"
 }
 
-// Used to name resources
 variable "prefix" {
   default = "proxyvm"
+  description = "Prefix to use for resource naming"
 }
 
-// Get supported regions: az account list-locations -o table
 variable "location" {
   default = "swedencentral"
+  description = "Get supported regions: az account list-locations -o table"
 }
 
 // Examples:
@@ -25,12 +26,12 @@ variable "vm_size" {
   default = "Standard_B1s"
 }
 
-// https://learn.microsoft.com/en-us/azure/virtual-machines/linux/faq#what-are-the-username-requirements-when-creating-a-vm-
 variable "username" {
-#  default = ""
+  default = ""
+  description = "Username requirements: https://learn.microsoft.com/en-us/azure/virtual-machines/linux/faq#what-are-the-username-requirements-when-creating-a-vm-"
 }
 
-// https://learn.microsoft.com/en-us/azure/virtual-machines/linux/faq#what-are-the-password-requirements-when-creating-a-vm-
 variable "password" {
-#  default = ""
+  default = ""
+  description = "Password requirements: https://learn.microsoft.com/en-us/azure/virtual-machines/linux/faq#what-are-the-password-requirements-when-creating-a-vm-"
 }

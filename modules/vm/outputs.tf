@@ -1,5 +1,5 @@
 output "public_ip" {
-  value = module.vm.public_ip
+  value = azurerm_public_ip.pip.ip_address
 }
 
 output "username" {
