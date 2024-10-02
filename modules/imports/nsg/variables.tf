@@ -1,9 +1,9 @@
 variable "resource_group_name" {
   type        = string
-  description = "Name of the Resource Group"
+  description = "Name of the Resource Group."
 }
 
 variable "nsg_name" {
   type        = string
-  description = "Name of the existing Network Security Group"
+  description = "Name of the existing Network Security Group."
 }
