@@ -21,43 +21,46 @@ resource "azurerm_network_interface" "nic" {
 }
 
 // Virtual machine
-resource "azurerm_virtual_machine" "vm" {
+resource "azurerm_linux_virtual_machine" "vm" {
   location                         = var.location
   resource_group_name              = var.resource_group_name
   name                             = var.vm_name
-  vm_size                          = var.vm_size
+  size                             = var.vm_size
   network_interface_ids            = [azurerm_network_interface.nic.id]
-  delete_os_disk_on_termination    = true
-  delete_data_disks_on_termination = true
+  custom_data                      = var.custom_data == null ? null : file(var.custom_data)
 
-  storage_image_reference {
+  source_image_reference {
     publisher = "Canonical"
-    offer     = "0001-com-ubuntu-server-focal"
-    sku       = "20_04-lts"
+    offer     = "0001-com-ubuntu-server-jammy"
+    sku       = "22_04-lts"
     version   = "latest"
   }
 
-  storage_os_disk {
-    name              = "${var.vm_name}-osdisk"
-    caching           = "ReadWrite"
-    create_option     = "FromImage"
-    managed_disk_type = "Standard_LRS"
+  os_disk {
+    name                 = "${var.vm_name}-osdisk"
+    caching              = "ReadWrite"
+    storage_account_type = "StandardSSD_LRS"
   }
 
-  os_profile {
-    computer_name  = var.vm_name
-    admin_username = var.username
-    admin_password = var.password
+  # OS settings
+  computer_name  = var.vm_name
+  admin_username = var.username
+
+  # Authenticate with a key
+  admin_ssh_key {
+    username   = var.username
+    public_key = file(var.public_key)
   }
 
-  os_profile_linux_config {
-    disable_password_authentication = false
-  }
+  # Authenticate with a password
+  #disable_password_authentication = false
+  #admin_password                  = var.password
 }
 
 // Attach NSG to NIC if the NSG ID is provided
 resource "azurerm_network_interface_security_group_association" "nicattachment" {
-  count                     = var.attach_nsg ? 1 : 0
+  #count                     = var.attach_nsg ? 1 : 0
+  count                     = var.network_security_group_id == null ? 0 : 1
   network_interface_id      = azurerm_network_interface.nic.id
   network_security_group_id = var.network_security_group_id
 }

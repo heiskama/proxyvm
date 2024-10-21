@@ -5,6 +5,7 @@ variable "tenant_id" {
 }
 
 variable "subscription_id" {
+  type        = string
   default     = ""
   description = "Get subscription_id (id) with: `az account show` or `az account list`."
 }
@@ -27,14 +28,38 @@ variable "vm_size" {
   default = "Standard_B1s"
 }
 
+variable "delete_os_disk_on_deletion" {
+  type = string
+  default = true
+  description = "'true' = Delete OS disk on VM deletion"
+}
+
+variable "detach_data_disk_on_deletion" {
+  type = string
+  default = false
+  description = "'true' = detach data disk on VM deletion, 'false' = delete data disk on VM deletion"
+}
+
 variable "username" {
   type        = string
-  default     = ""
+  default     = "proxyvm"
   description = "Username requirements: https://learn.microsoft.com/en-us/azure/virtual-machines/linux/faq#what-are-the-username-requirements-when-creating-a-vm-"
+}
+
+variable "public_key" {
+  type        = string
+  default     = "./mykey.pem.pub"
+  description = "The Public Key which should be used for authentication, which needs to be in ssh-rsa format with at least 2048-bit or in ssh-ed25519 format."
 }
 
 variable "password" {
   type        = string
   default     = ""
   description = "Password requirements: https://learn.microsoft.com/en-us/azure/virtual-machines/linux/faq#what-are-the-password-requirements-when-creating-a-vm-"
+}
+
+variable "custom_data" {
+  type        = string
+  default     = "./cloud-init.sh"
+  description = "Run this script at first VM start."
 }

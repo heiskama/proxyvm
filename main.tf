@@ -10,11 +10,16 @@ terraform {
 
 // Provider configuration
 provider "azurerm" {
-  features {}
-  tenant_id                       = "${var.tenant_id}"
-  subscription_id                 = "${var.subscription_id}"
+  tenant_id                       = var.tenant_id
+  subscription_id                 = var.subscription_id
   #skip_provider_registration      = "true"  # Deprecated
   resource_provider_registrations = "none"
+  features {
+    virtual_machine {
+      detach_implicit_data_disk_on_deletion = var.detach_data_disk_on_deletion
+      delete_os_disk_on_deletion            = var.delete_os_disk_on_deletion
+    }
+  }
 }
 
 // Resource Group
@@ -88,7 +93,8 @@ module "vm" {
   vm_size                   = var.vm_size
   subnet_id                 = module.subnet1.subnet_id
   username                  = var.username
-  password                  = var.password
-  attach_nsg                = true
+  public_key                = var.public_key
+  custom_data               = var.custom_data
+  #attach_nsg                = true
   network_security_group_id = module.nsg.nsg_id
 }

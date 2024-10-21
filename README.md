@@ -1,6 +1,9 @@
 # Proxy VM / SOCKS v5 proxy
 
 ```shell
+# Generate a new ssh key, no passphrase, no comment
+ssh-keygen -t rsa -b 2048 -v -f mykey.pem -N '' -C ''
+
 # Authenticate
 az login --use-device-code
 az account set --name "name of my subscription"
