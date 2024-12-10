@@ -29,14 +29,14 @@ variable "vm_size" {
 }
 
 variable "delete_os_disk_on_deletion" {
-  type = string
-  default = true
+  type        = string
+  default     = true
   description = "'true' = Delete OS disk on VM deletion"
 }
 
 variable "detach_data_disk_on_deletion" {
-  type = string
-  default = false
+  type        = string
+  default     = false
   description = "'true' = detach data disk on VM deletion, 'false' = delete data disk on VM deletion"
 }
 

@@ -46,15 +46,14 @@ variable "custom_data" {
   description = "This can be used as a cloud-init script."
 }
 
-#variable "attach_nsg" {
-#  type        = bool
-#  default     = false
-#  description = "Attach NSG to the NIC? If 'true', provide also 'network_security_group_id'."
-#}
+variable "attach_nsg" {
+  type        = bool
+  default     = false
+  description = "Attach NSG to the NIC? If 'true', provide also 'network_security_group_id'."
+}
 
 variable "network_security_group_id" {
   type        = string
   default     = null
-  #description = "Network Security Group ID to use for NIC attachment when 'attach_nsg = true'."
-  description = "Network Security Group ID to use for NIC attachment."
+  description = "Network Security Group ID to use for NIC attachment when 'attach_nsg = true'."
 }

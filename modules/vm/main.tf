@@ -27,7 +27,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
   name                             = var.vm_name
   size                             = var.vm_size
   network_interface_ids            = [azurerm_network_interface.nic.id]
-  custom_data                      = var.custom_data == null ? null : file(var.custom_data)
+  custom_data                      = var.custom_data == null ? null : base64encode(file(var.custom_data))
 
   source_image_reference {
     publisher = "Canonical"
@@ -59,8 +59,7 @@ resource "azurerm_linux_virtual_machine" "vm" {
 
 // Attach NSG to NIC if the NSG ID is provided
 resource "azurerm_network_interface_security_group_association" "nicattachment" {
-  #count                     = var.attach_nsg ? 1 : 0
-  count                     = var.network_security_group_id == null ? 0 : 1
+  count                     = var.attach_nsg ? 1 : 0
   network_interface_id      = azurerm_network_interface.nic.id
   network_security_group_id = var.network_security_group_id
 }

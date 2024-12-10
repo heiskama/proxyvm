@@ -2,7 +2,7 @@
 terraform {
   required_providers {
     azurerm = {
-      source = "hashicorp/azurerm"
+      source  = "hashicorp/azurerm"
       version = ">= 2.26"
     }
   }
@@ -12,8 +12,8 @@ terraform {
 provider "azurerm" {
   tenant_id                       = var.tenant_id
   subscription_id                 = var.subscription_id
-  #skip_provider_registration      = "true"  # Deprecated
   resource_provider_registrations = "none"
+  #skip_provider_registration      = "true"  # Deprecated
   features {
     virtual_machine {
       detach_implicit_data_disk_on_deletion = var.detach_data_disk_on_deletion
@@ -70,11 +70,11 @@ module "subnet1" {
 
 // Network Security Group
 module "nsg" {
-  source                  = "./modules/nsg"
-  location                = var.location
-  resource_group_name     = module.rg.resource_group_name
-  nsg_name                = "${var.prefix}-nsg"
-  allow_all_inbound_from  = "*"
+  source                 = "./modules/nsg"
+  location               = var.location
+  resource_group_name    = module.rg.resource_group_name
+  nsg_name               = "${var.prefix}-nsg"
+  allow_all_inbound_from = "*"
 }
 
 // Import existing Network Security Group
@@ -89,12 +89,12 @@ module "vm" {
   source                    = "./modules/vm"
   location                  = var.location
   resource_group_name       = module.rg.resource_group_name
-  vm_name                   = "${var.prefix}"
+  vm_name                   = var.prefix
   vm_size                   = var.vm_size
   subnet_id                 = module.subnet1.subnet_id
   username                  = var.username
   public_key                = var.public_key
   custom_data               = var.custom_data
-  #attach_nsg                = true
+  attach_nsg                = true
   network_security_group_id = module.nsg.nsg_id
 }
